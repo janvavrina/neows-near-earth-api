@@ -2,8 +2,8 @@
 Web application with a single REST endpoint that takes two date arguments and retrieves the list of near-Earth space objects approaching Earth in that time interval.
 
 ## Prerequisites
-Installed Docker
-Internet connection due to the external API
+- Installed Docker
+- Internet connection due to the external API
 
 > All of the command below might need `sudo` depending on your configuration
 
