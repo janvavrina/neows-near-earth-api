@@ -38,7 +38,7 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
         raise HTTPException(status_code=404, detail="Item not found")
     if near_earth_objects:
         items = near_earth_objects.items()
-
+        # TODO sort by closest approach
         items = [
             {
                 key: value
