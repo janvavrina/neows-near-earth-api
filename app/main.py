@@ -1,3 +1,4 @@
+import json
 from typing import Union
 
 from fastapi import FastAPI, Query, HTTPException
@@ -48,26 +49,25 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
         raise HTTPException(status_code=404, detail="Item not found")
     if near_earth_objects:
         neo_items = near_earth_objects.items()
+
+        # creates array of objects
         neo_items = [
             {
-                date:
-                    [
-                        {
-                            key: value[0] if isinstance(value, list) and len(value) == 1 else value
-                            for key, value in neo.items()
-                            if key in {'name', 'estimated_diameter', 'close_approach_data'}
-                        }
-                        for neo in neos
-                    ]
+                **{
+                    key: value[0] if isinstance(value, list) and len(value) == 1 else value
+                    for key, value in neo.items()
+                    if key in settings.LF_ATTRIBUTES
+                },
+                'date': date  # adds date to other keys
             }
             for date, neos in neo_items
+            for neo in neos
         ]
 
         # TODO sort items by distance
-        # if lambda x: len(x.get('close_approach_data')) == 1:
-        #     neo_items.sort(key=lambda x: (x.get('close_approach_data')[0]
-        #                                   .get('miss_distance')
-        #                                   .get('astronomical')
-        #                                   ),
-        #                    reverse=False)
+        # neo_items.sort(key=lambda x: (x.get('close_approach_data')
+        #                               .get('miss_distance')
+        #                               .get('astronomical')
+        #                               ),
+        #                reverse=False)
     return neo_items
