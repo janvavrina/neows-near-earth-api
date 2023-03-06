@@ -64,10 +64,13 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
             for neo in neos
         ]
 
-        # TODO sort items by distance
-        # neo_items.sort(key=lambda x: (x.get('close_approach_data')
-        #                               .get('miss_distance')
-        #                               .get('astronomical')
-        #                               ),
-        #                reverse=False)
+        # sort items by distance
+        try:
+            def key_distance(x):
+                return x['close_approach_data']['miss_distance']['astronomical']
+
+            neo_items.sort(key=key_distance, reverse=False)
+        except KeyError:
+            raise HTTPException(status_code=404, detail="Item not found")
+
     return neo_items
