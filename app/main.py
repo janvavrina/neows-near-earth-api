@@ -52,9 +52,11 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
             {
                 date:
                     [
-                        {key: value for key, value in neo.items()
-                         if key in {'name', 'estimated_diameter', 'close_approach_data'}
-                         }
+                        {
+                            key: value[0] if isinstance(value, list) and len(value) == 1 else value
+                            for key, value in neo.items()
+                            if key in {'name', 'estimated_diameter', 'close_approach_data'}
+                        }
                         for neo in neos
                     ]
             }
