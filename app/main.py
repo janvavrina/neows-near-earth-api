@@ -43,6 +43,9 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
     payload = {"start_date": start_date, "end_date": end_date, "api_key": settings.API_KEY}
     response = requests.get(f"{settings.BASE_URL}/feed", params=payload).json()
 
+    if not response:
+        raise HTTPException(status_code=503, detail="External API not available")
+
     try:
         near_earth_objects = response["near_earth_objects"]
     except KeyError:
