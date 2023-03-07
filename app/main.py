@@ -6,6 +6,8 @@ import requests
 import re
 import logging
 
+from pydantic import BaseModel
+
 from app import settings
 
 app = FastAPI()
@@ -20,15 +22,24 @@ def hello():
     return {"output": "hello The MAMA AI"}
 
 
-@app.get("/objects", status_code=200)
+@app.get("/objects",
+         status_code=200,
+         description="Fetches near by objects passing around Earth",
+         )
 def read_nasa(start_date: str | None = Query(default="2022-11-09",
                                              min_length=10,
                                              max_length=10,
-                                             regex=settings.DATE_FORMAT_REGEX),
-              end_date: str | None = Query(default="2022-11-11",
+                                             regex=settings.DATE_FORMAT_REGEX,
+                                             example="2022-11-09"
+                                             ),
+              end_date: str | None = Query(default="2022-11-12",
                                            min_length=10,
                                            max_length=10,
-                                           regex=settings.DATE_FORMAT_REGEX)
+                                           regex=settings.DATE_FORMAT_REGEX,
+                                           example="2022-11-12"
+
+                                           )
+
               ):
     """
 
