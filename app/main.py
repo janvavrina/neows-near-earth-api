@@ -8,7 +8,7 @@ import logging
 
 from pydantic import BaseModel
 
-from app import settings
+from .config import settings
 
 app = FastAPI()
 
