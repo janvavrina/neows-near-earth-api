@@ -1,25 +1,42 @@
-import json
-from typing import Union
-
 from fastapi import FastAPI, Query, HTTPException
 import requests
 import re
+from datetime import datetime, timedelta
 import logging
-
-from pydantic import BaseModel
 
 from .config import settings
 
 app = FastAPI()
+logger = logging.getLogger()
 
 
 def bool_match_regex(text: str, pattern: str):
     return bool(re.match(pattern, text))
 
 
+def get_weekly_dates(start_date: str, end_date: str, interval: int):
+    list_pairs = list()
+    start = datetime.strptime(start_date, settings.DATE_FORMAT_DATETIME)
+    end = datetime.strptime(end_date, settings.DATE_FORMAT_DATETIME)
+    delta = timedelta(days=interval)
+    while start <= end:
+        pair = (start.strftime(settings.DATE_FORMAT_DATETIME),
+                min(end, start + delta - timedelta(days=1)).strftime(settings.DATE_FORMAT_DATETIME))
+        start += delta
+        list_pairs.append(pair)
+    return list_pairs
+
+
+def get_length_interval_dates(start_date: str, end_date: str):
+    start = datetime.strptime(start_date, settings.DATE_FORMAT_DATETIME)
+    end = datetime.strptime(end_date, settings.DATE_FORMAT_DATETIME)
+    length = end - start
+    return length.days
+
+
 @app.get("/", status_code=200)
 def hello():
-    return {"output": "hello The MAMA AI"}
+    return {"response": "hello The MAMA AI"}
 
 
 @app.get("/objects",
@@ -37,9 +54,7 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
                                            max_length=10,
                                            regex=settings.DATE_FORMAT_REGEX,
                                            example="2022-11-12"
-
                                            )
-
               ):
     """
 
@@ -47,41 +62,58 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
     :param end_date: string specifying ending date in YYYY-MM-DD format
     :return: array of  JSON objects containing name, estimated diameter, close_approach_data
     """
+    # final array for all objects
+    result = list()
+
+    # check of input dates if they are corresponding to regex
     if not bool_match_regex(start_date, settings.DATE_FORMAT_REGEX) \
             or not bool_match_regex(end_date, settings.DATE_FORMAT_REGEX):
         raise HTTPException(status_code=400, detail="Incorrect format of dates")
 
-    payload = {"start_date": start_date, "end_date": end_date, "api_key": settings.API_KEY}
-    response = requests.get(f"{settings.BASE_URL}/feed", params=payload).json()
+    # array for tuples of 7-day intervals
+    date_intervals = list()
 
-    try:
-        near_earth_objects = response["near_earth_objects"]
-    except KeyError:
-        raise HTTPException(status_code=404, detail="Item not found")
+    # check if interval is longer than 7-day
+    if get_length_interval_dates(start_date, end_date) > settings.DAYS_LIMIT:
+        date_intervals = get_weekly_dates(start_date, end_date, interval=settings.DAYS_LIMIT)
+    else:
+        date_intervals.append((start_date, end_date))
+    for new_start_date, new_end_date in date_intervals:
+        payload = {"start_date": new_start_date, "end_date": new_end_date, "api_key": settings.API_KEY}
+        response = requests.get(f"{settings.BASE_URL}/feed", params=payload).json()
 
-    neo_items = near_earth_objects.items()
+        try:
+            near_earth_objects = response["near_earth_objects"]
+            logger.info("Near earth objects found.")
+        except KeyError:
+            raise HTTPException(status_code=404, detail="Item not found")
 
-    # creates array of objects
-    neo_items = [
-        {
-            **{
-                key: value[0] if isinstance(value, list) and len(value) == 1 else value
-                for key, value in neo.items()
-                if key in settings.LF_ATTRIBUTES
-            },
-            'date': date  # adds date to other keys
-        }
-        for date, neos in neo_items
-        for neo in neos
-    ]
+        neo_items = near_earth_objects.items()
+
+        # creates array of objects
+        neo_items = [
+            {
+                **{
+                    key: value[0] if isinstance(value, list) and len(value) == 1 else value
+                    for key, value in neo.items()
+                    if key in settings.LF_ATTRIBUTES
+                },
+                'date': date  # adds date to other keys
+            }
+            for date, neos in neo_items
+            for neo in neos
+        ]
+
+        # add neo items to final array
+        result.extend(neo_items)
 
     # sort items by distance
     try:
         def key_distance(x):
             return x['close_approach_data']['miss_distance']['astronomical']
 
-        neo_items.sort(key=key_distance, reverse=False)
+        result.sort(key=key_distance, reverse=False)
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    return neo_items
+    return result
