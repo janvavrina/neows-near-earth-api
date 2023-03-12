@@ -80,6 +80,7 @@ def read_nasa(start_date: str = Query(description="Date in YYYY-MM-DD format",
     """
     # final array for all objects
     result = list()
+    number_of_requests = 0
 
     # check of input dates if they are corresponding to regex
     if not bool_match_regex(start_date, settings.DATE_FORMAT_REGEX) \
@@ -93,13 +94,17 @@ def read_nasa(start_date: str = Query(description="Date in YYYY-MM-DD format",
     # test if start date is before end date
     if get_length_interval_dates(start_date, end_date) < 0:
         raise HTTPException(status_code=400, detail="End date is before start date")
+    logging.info("Start date is before end date.")
 
     # check if interval is longer than 7-day
     if get_length_interval_dates(start_date, end_date) > settings.DAYS_LIMIT:
         date_intervals = get_weekly_dates(start_date, end_date, interval=settings.DAYS_LIMIT)
+        logging.info("Interval longer than 7 days.")
     else:
         date_intervals.append((start_date, end_date))
+        logging.info("Interval was not longer than 7 days.")
     for new_start_date, new_end_date in date_intervals:
+        number_of_requests += 1
         payload = {"start_date": new_start_date, "end_date": new_end_date, "api_key": settings.API_KEY}
         response = requests.get(f"{settings.BASE_URL}/feed", params=payload).json()
 
@@ -127,13 +132,14 @@ def read_nasa(start_date: str = Query(description="Date in YYYY-MM-DD format",
 
         # add neo items to final array
         result.extend(neo_items)
-
+    logging.info(f"Number of requests: {number_of_requests}")
     # sort items by distance
     try:
         def key_distance(x):
             return x['close_approach_data']['miss_distance']['astronomical']
 
         result.sort(key=key_distance, reverse=False)
+        logging.info("Objects sorted.")
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
 
