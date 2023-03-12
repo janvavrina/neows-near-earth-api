@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Query, HTTPException
+from fastapi.responses import JSONResponse
 import requests
 import re
 from datetime import datetime, timedelta
@@ -125,4 +126,4 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    return result
+    return JSONResponse(status_code=200, content=result)
