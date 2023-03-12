@@ -3,11 +3,17 @@ import requests
 import re
 from datetime import datetime, timedelta
 import logging
+import time
 
 from .config import settings
 
+
+def str_timestamp_now():
+    return str(int(time.time()))
+
+
 app = FastAPI()
-logger = logging.getLogger()
+logging.basicConfig(filename=f"app/logs/{str_timestamp_now()}.log", encoding="utf-8")
 
 
 def bool_match_regex(text: str, pattern: str):
@@ -57,10 +63,12 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
                                            )
               ):
     """
+    Fetches near earth objects going around Earth
 
     :param start_date: string specifying starting date in YYYY-MM-DD format
     :param end_date: string specifying ending date in YYYY-MM-DD format
-    :return: array of  JSON objects containing name, estimated diameter, close_approach_data
+    :return: sorted by distance from Earth array of  JSON objects
+             containing name, estimated diameter, close_approach_data, date
     """
     # final array for all objects
     result = list()
@@ -69,6 +77,7 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
     if not bool_match_regex(start_date, settings.DATE_FORMAT_REGEX) \
             or not bool_match_regex(end_date, settings.DATE_FORMAT_REGEX):
         raise HTTPException(status_code=400, detail="Incorrect format of dates")
+    logging.info("Dates passed regex.")
 
     # array for tuples of 7-day intervals
     date_intervals = list()
@@ -84,7 +93,7 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
 
         try:
             near_earth_objects = response["near_earth_objects"]
-            logger.info("Near earth objects found.")
+            logging.info("Near earth objects found.")
         except KeyError:
             raise HTTPException(status_code=404, detail="Item not found")
 
