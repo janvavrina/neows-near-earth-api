@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Query, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 import requests
 import re
@@ -14,7 +15,8 @@ def str_timestamp_now():
 
 
 app = FastAPI()
-logging.basicConfig(filename=f"app/logs/{str_timestamp_now()}.log", encoding="utf-8")
+# setup for logging
+logging.basicConfig(filename=f"app/logs/{str_timestamp_now()}.log", encoding="utf-8", level=logging.INFO)
 
 
 def bool_match_regex(text: str, pattern: str):
@@ -41,27 +43,32 @@ def get_length_interval_dates(start_date: str, end_date: str):
     return length.days
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(status_code=400, content={"detail": "Invalid entry data"})
+
+
 @app.get("/", status_code=200)
 def hello():
-    return {"response": "hello The MAMA AI"}
+    return {"detail": "hello The MAMA AI"}
 
 
 @app.get("/objects",
          status_code=200,
          description="Fetches near by objects passing around Earth",
          )
-def read_nasa(start_date: str | None = Query(default="2022-11-09",
-                                             min_length=10,
-                                             max_length=10,
-                                             regex=settings.DATE_FORMAT_REGEX,
-                                             example="2022-11-09"
-                                             ),
-              end_date: str | None = Query(default="2022-11-12",
-                                           min_length=10,
-                                           max_length=10,
-                                           regex=settings.DATE_FORMAT_REGEX,
-                                           example="2022-11-12"
-                                           )
+def read_nasa(start_date: str = Query(description="Date in YYYY-MM-DD format",
+                                      min_length=10,
+                                      max_length=10,
+                                      regex=settings.DATE_FORMAT_REGEX,
+                                      example="2022-11-09"
+                                      ),
+              end_date: str = Query(description="Date in YYYY-MM-DD format",
+                                    min_length=10,
+                                    max_length=10,
+                                    regex=settings.DATE_FORMAT_REGEX,
+                                    example="2022-11-12"
+                                    )
               ):
     """
     Fetches near earth objects going around Earth
@@ -82,6 +89,10 @@ def read_nasa(start_date: str | None = Query(default="2022-11-09",
 
     # array for tuples of 7-day intervals
     date_intervals = list()
+
+    # test if start date is before end date
+    if get_length_interval_dates(start_date, end_date) < 0:
+        raise HTTPException(status_code=400, detail="End date is before start date")
 
     # check if interval is longer than 7-day
     if get_length_interval_dates(start_date, end_date) > settings.DAYS_LIMIT:
