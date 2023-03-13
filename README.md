@@ -23,7 +23,9 @@ To access your application docs:
 
 ## Tests
 To run all tests (multiple ways):
-> You need to be in app directory
-- `./tests.sh`
-- `sh tests.sh`
-- `pytest tests/test_main.py`
+
+Locally
+- `pytest ./app/tests/test_main.py`
+
+In docker
+- `docker exec neows-container pytest ./app/tests/test_main.py`
