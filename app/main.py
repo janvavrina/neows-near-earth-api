@@ -141,6 +141,6 @@ def read_nasa(start_date: str = Query(description="Date in YYYY-MM-DD format",
         result.sort(key=key_distance, reverse=False)
         logging.info("Objects sorted.")
     except KeyError:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Sort key not found")
 
     return JSONResponse(status_code=200, content=result)

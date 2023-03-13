@@ -12,6 +12,8 @@ RUN pip install --upgrade pip
 # install and don't cache downloaded packages plus upgrade already installed ones
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
+COPY .env .env
+
 # copy app files to docker image
 COPY ./app /code/app
 

@@ -14,7 +14,7 @@ docker build -t neows-api-image .
 
 ## Run container
 ```
-docker run -d --name neows-container -p 80:80 neows-api-image
+docker run --env-file .env -d --name neows-container -p 80:80 neows-api-image
 ```
 
 ## Accessing your application
