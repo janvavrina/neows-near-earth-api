@@ -17,5 +17,5 @@ COPY .env .env
 # copy app files to docker image
 COPY ./app /code/app
 
-# run through uvicorn on address 0.0.0.0:80
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+# run through uvicorn on port 8080
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
