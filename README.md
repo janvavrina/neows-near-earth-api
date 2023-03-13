@@ -8,11 +8,11 @@ Web application with a single REST endpoint that takes two date arguments and re
 > All of the command below might need `sudo` depending on your configuration
 
 ---
-**NOTE**
+### NOTE
 
 After cloning before usage, create .env file with create_env_file.sh script
 
-### Usage
+**Usage**
 `create_env_file.sh <your_api_key>`
 
 If you do not enter any api key, you will be using DEMO_KEY with it's limitations.
