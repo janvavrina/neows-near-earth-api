@@ -10,16 +10,14 @@ Web application with a single REST endpoint that takes two date arguments and re
 ---
 **NOTE**
 
-After cloning, change in .env file the API_KEY to your key generated on [Nasa APIs](https://api.nasa.gov/) website
+After cloning before usage, create .env file with create_env_file.sh script
 
-DEMO_KEY works also, but it has it's limitations
+### Usage
+`create_env_file.sh <your_api_key>`
 
-Insert your key just as is, **DON'T** put it in " " or ' '
+If you do not enter any api key, you will be using DEMO_KEY with it's limitations.
 
-Example:
-
-`API_KEY=your_api_key` where `your_api_key` is your hash
-
+**If you don't run this script before building image, you will get error.**
 ---
 
 ## Build image
