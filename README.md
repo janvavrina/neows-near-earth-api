@@ -28,12 +28,12 @@ docker build -t neows-api-image .
 
 ## Run container
 ```
-docker run --env-file .env -d --name neows-container -p 80:80 neows-api-image
+docker run --env-file .env -d --name neows-container -p 8001:8001 neows-api-image
 ```
 
 ## Accessing your application
 To access your application docs:
-- `127.0.0.1:80/docs` or `localhost:80/docs`
+- `127.0.0.1:8001/docs` or `localhost:8001/docs` or `0.0.0.0:8001/docs`
 
 ## Tests
 To run all tests (multiple ways):
