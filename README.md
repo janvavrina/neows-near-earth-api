@@ -7,6 +7,21 @@ Web application with a single REST endpoint that takes two date arguments and re
 
 > All of the command below might need `sudo` depending on your configuration
 
+---
+**NOTE**
+
+After cloning, change in .env file the API_KEY to your key generated on [Nasa APIs](https://api.nasa.gov/) website
+
+DEMO_KEY works also, but it has it's limitations
+
+Insert your key just as is, **DON'T** put it in "" or ''
+
+Example:
+
+`API_KEY=your_api_key` where `your_api_key` is your hash
+
+---
+
 ## Build image
 ```
 docker build -t neows-api-image .
