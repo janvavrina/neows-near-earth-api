@@ -14,7 +14,11 @@ After cloning before usage, create .env file with create_env_file.sh script
 
 **Usage**
 
-```create_env_file.sh <your_api_key>```
+```./create_env_file.sh <your_api_key>```
+
+or
+
+```sh create_env_file.sh <your_api_key>```
 
 If you do not enter any api key, you will be using DEMO_KEY with it's limitations.
 
