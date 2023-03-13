@@ -20,6 +20,8 @@ or
 
 ```sh create_env_file.sh <your_api_key>```
 
+where `<your_api_key>` is your API key that you generated through (Nasa APIs)[https://api.nasa.gov/]
+
 If you do not enter any api key, you will be using DEMO_KEY with it's limitations.
 
 **If you don't run this script before building image, you will get error.**
