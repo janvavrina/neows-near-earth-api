@@ -19,4 +19,11 @@ docker run --env-file .env -d --name neows-container -p 80:80 neows-api-image
 
 ## Accessing your application
 To access your application docs:
-- docs: `127.0.0.1:80/docs` or `localhost:80/docs`
+- `127.0.0.1:80/docs` or `localhost:80/docs`
+
+## Tests
+To run all tests (multiple ways):
+> You need to be in app directory
+- `./tests.sh`
+- `sh tests.sh`
+- `pytest tests/test_main.py`

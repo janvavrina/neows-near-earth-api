@@ -7,7 +7,7 @@ client = TestClient(app)
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"response": "hello The MAMA AI"}
+    assert response.json() == {"detail": "hello The MAMA AI"}
 
 
 def test_invalid_dates_format_nasa():
