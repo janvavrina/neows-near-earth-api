@@ -14,7 +14,7 @@ After cloning, change in .env file the API_KEY to your key generated on [Nasa AP
 
 DEMO_KEY works also, but it has it's limitations
 
-Insert your key just as is, **DON'T** put it in "" or ''
+Insert your key just as is, **DON'T** put it in " " or ' '
 
 Example:
 
