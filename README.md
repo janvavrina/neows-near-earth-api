@@ -12,6 +12,7 @@ Web application with a single REST endpoint that takes two date arguments and re
 
 After cloning before usage, create .env file with create_env_file.sh script
 
+
 **Usage**
 
 ```./create_env_file.sh <your_api_key>```
